@@ -25,7 +25,7 @@ BOpus::Encoder::Encoder(QAudioFormat format, Application application ,int bitrat
 }
 
 
-QByteArray BOpus::Encoder::encode(unsigned char *ptrdatapcm8bit, int size)
+int BOpus::Encoder::encode(unsigned char *ptrdatapcm8bit, int size , unsigned char* output , int max_data_bytes)
 {
     // convert 8 bit to 16 bit array
     // so each 16 bit array element is 2 times greater than 8 bit
@@ -37,15 +37,16 @@ QByteArray BOpus::Encoder::encode(unsigned char *ptrdatapcm8bit, int size)
     for (int i=0;i<size/2;i++)
         ptrdataopus16bit[i]=ptrdatapcm8bit[2*i+1]<<8|ptrdatapcm8bit[2*i];
 
+    return opus_encode(encoder, ptrdataopus16bit, size/(f.channelCount()*2), output, max_data_bytes);
+}
+
+QByteArray BOpus::Encoder::encode(QByteArray pcmdata)
+{
     QByteArray cbr;
     cbr.resize(4000);
-    unsigned char* ptrcbr = reinterpret_cast<unsigned char*>(cbr.data());
-
-    int encsize = opus_encode(encoder, ptrdataopus16bit, size/(f.channelCount()*2), ptrcbr, 4000);
-
-    if (encsize<0) return QByteArray();
-
-    cbr.resize(encsize);
+    int size = encode(reinterpret_cast<unsigned char *>(pcmdata.data()),
+                      pcmdata.size(),reinterpret_cast<unsigned char *>(cbr.data()),cbr.size());
+    cbr.resize(size);
     return cbr;
 }
 
@@ -87,6 +88,11 @@ QByteArray BOpus::Decoder::decode(unsigned char *ptrdataopus, int size)
         ptrpcmdata8bit[2*i+1]=(ptrpcmdata[i]>>8)&0xFF;
     }
     return pcmdata8bit;
+}
+
+QByteArray BOpus::Decoder::decode(QByteArray encodeddata)
+{
+    return decode(reinterpret_cast<unsigned char*>(encodeddata.data()),encodeddata.size());
 }
 
 BOpus::Decoder::~Decoder()

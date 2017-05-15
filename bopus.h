@@ -32,7 +32,9 @@ public:
         Encoder(QAudioFormat format, Application application, int bitrate);
 
         //data must be able to be converted to 16bit
-        QByteArray encode(unsigned char* ptrdatapcm8bit , int size);
+        int encode(unsigned char *ptrdatapcm8bit, int size , unsigned char* output , int max_data_bytes);
+
+        QByteArray encode(QByteArray pcmdata);
 
         ~Encoder();
     };
@@ -44,7 +46,9 @@ public:
     public:
         Decoder(QAudioFormat format);
 
-        QByteArray decode(unsigned char* ptrdataopus , int size);
+        QByteArray decode(unsigned char *ptrdataopus, int size);
+
+        QByteArray decode(QByteArray encodeddata);
 
         ~Decoder();
     };
