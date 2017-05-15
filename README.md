@@ -2,6 +2,7 @@ BOpus library
 =============
 
 This repository has been created for Bajenaghha project. BOpus library is designed for Qt to implement opus library.
+
 **Note:** decode and encode functions of *BOpus::Decoder* and *BOpus::Encoder* are not thread-safe in this version.
 
 How to use
